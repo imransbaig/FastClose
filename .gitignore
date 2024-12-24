@@ -1,0 +1,15 @@
+# Ignore all files in the parent directory
+../*
+
+# Allow only the project files in this folder
+!index.html
+!.gitignore
+
+# Ignore unnecessary system files
+*.DS_Store
+Thumbs.db
+*.log
+
+# Node.js dependencies (if applicable)
+node_modules/
+
