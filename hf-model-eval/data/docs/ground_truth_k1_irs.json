@@ -1,0 +1,166 @@
+{
+  "doc13": {
+    "doc_id": "doc13",
+    "doc_type": "K1_1065",
+    "png": "doc13_K1_1065.png",
+    "pdf": "doc13_K1_1065.pdf",
+    "scan_profile": "clean",
+    "fields": {
+      "tax_year": "2025",
+      "partnership_name": "CEDAR RIDGE DENTAL PARTNERS LLC",
+      "partnership_ein": "97-4115934",
+      "partner_name": "THOMAS MORAVEC",
+      "partner_tin_last4": "5827",
+      "partner_type": "GENERAL",
+      "profit_share_pct_ending": "20.00",
+      "box1_ordinary_income": "58284.00",
+      "box2_net_rental_real_estate": "4069.00",
+      "box4a_guaranteed_payments_services": "9945.00",
+      "box5_interest_income": "1209.00",
+      "box14a_self_employment_earnings": "68229.00",
+      "box19a_distributions": "14614.00"
+    }
+  },
+  "doc14": {
+    "doc_id": "doc14",
+    "doc_type": "K1_1065",
+    "png": "doc14_K1_1065.png",
+    "pdf": "doc14_K1_1065.pdf",
+    "scan_profile": "skew_noise",
+    "fields": {
+      "tax_year": "2025",
+      "partnership_name": "SUMMIT CREEK HOLDINGS LP",
+      "partnership_ein": "99-9843470",
+      "partner_name": "VICTOR E CASTELLANO",
+      "partner_tin_last4": "7499",
+      "partner_type": "LIMITED",
+      "profit_share_pct_ending": "35.00",
+      "box1_ordinary_income": "-17738.00",
+      "box2_net_rental_real_estate": "3939.00",
+      "box4a_guaranteed_payments_services": "26269.00",
+      "box5_interest_income": "994.00",
+      "box14a_self_employment_earnings": "26269.00",
+      "box19a_distributions": "25686.00"
+    }
+  },
+  "doc15": {
+    "doc_id": "doc15",
+    "doc_type": "K1_1120S",
+    "png": "doc15_K1_1120S.png",
+    "pdf": "doc15_K1_1120S.pdf",
+    "scan_profile": "fax",
+    "fields": {
+      "tax_year": "2025",
+      "corporation_name": "PINECREST AUTOMOTIVE INC",
+      "corporation_ein": "76-1606940",
+      "shareholder_name": "MARGARET OKAFOR",
+      "shareholder_tin_last4": "8640",
+      "ownership_pct": "50.00",
+      "box1_ordinary_income": "76776.00",
+      "box2_net_rental_real_estate": "15854.00",
+      "box4_interest_income": "1198.00",
+      "box5a_ordinary_dividends": "3020.00",
+      "box16d_distributions": "56552.00"
+    }
+  },
+  "doc16": {
+    "doc_id": "doc16",
+    "doc_type": "IRS_WAGE_INCOME_TRANSCRIPT",
+    "png": "doc16_IRS_WAGE_INCOME_TRANSCRIPT.png",
+    "pdf": "doc16_IRS_WAGE_INCOME_TRANSCRIPT.pdf",
+    "scan_profile": "photo",
+    "fields": {
+      "tax_year": "2025",
+      "taxpayer_ssn_last4": "7709",
+      "taxpayer_name": "MARCUS DESAI",
+      "form_count": "4",
+      "w2_1_employer_name": "LAKESHORE HOSPITALITY GROUP LLC",
+      "w2_1_wages": "48179.00",
+      "w2_1_fed_withheld": "8672.00",
+      "int_1_payer_name": "HARBORVIEW SAVINGS BANK",
+      "int_1_interest": "1218.00",
+      "nec_1_payer_name": "VELOCITY MARKETING PARTNERS LLC",
+      "nec_1_amount": "14125.00"
+    }
+  },
+  "doc17": {
+    "doc_id": "doc17",
+    "doc_type": "IRS_ACCOUNT_TRANSCRIPT",
+    "png": "doc17_IRS_ACCOUNT_TRANSCRIPT.png",
+    "pdf": "doc17_IRS_ACCOUNT_TRANSCRIPT.pdf",
+    "scan_profile": "clean",
+    "fields": {
+      "tax_year": "2025",
+      "taxpayer_ssn_last4": "2804",
+      "taxpayer_name": "NADIA BRENNAN",
+      "filing_status": "SINGLE",
+      "adjusted_gross_income": "107248.00",
+      "taxable_income": "92248.00",
+      "tax_per_return": "15208.00",
+      "account_balance": "0.00",
+      "accrued_interest": "0.00",
+      "accrued_penalty": "0.00",
+      "tc150_date": "2026-03-28",
+      "tc806_withholding": "17452.00",
+      "tc846_refund_amount": "2744.00",
+      "tc846_date": "2026-03-30"
+    }
+  },
+  "doc18": {
+    "doc_id": "doc18",
+    "doc_type": "CP2000",
+    "png": "doc18_CP2000.png",
+    "pdf": "doc18_CP2000.pdf",
+    "scan_profile": "skew_noise",
+    "fields": {
+      "notice_type": "CP2000",
+      "tax_year": "2024",
+      "notice_date": "2026-05-23",
+      "taxpayer_ssn_last4": "9094",
+      "taxpayer_name": "PRIYA WHITFIELD",
+      "response_deadline": "2026-06-22",
+      "proposed_tax_increase": "3233.86",
+      "proposed_penalty": "646.77",
+      "proposed_interest": "260.32",
+      "total_proposed_amount_due": "4140.95",
+      "unreported_payer_name": "SILVERLINE CONSULTING GROUP INC",
+      "unreported_amount": "11866.00"
+    }
+  },
+  "doc19": {
+    "doc_id": "doc19",
+    "doc_type": "CP14",
+    "png": "doc19_CP14.png",
+    "pdf": "doc19_CP14.pdf",
+    "scan_profile": "fax",
+    "fields": {
+      "notice_type": "CP14",
+      "tax_year": "2025",
+      "notice_date": "2026-07-19",
+      "taxpayer_ssn_last4": "9670",
+      "taxpayer_name": "HELEN OKAFOR",
+      "pay_by_date": "2026-08-09",
+      "tax_owed": "2714.76",
+      "failure_to_pay_penalty": "27.15",
+      "interest": "18.74",
+      "amount_due": "2760.65"
+    }
+  },
+  "doc20": {
+    "doc_id": "doc20",
+    "doc_type": "CP503",
+    "png": "doc20_CP503.png",
+    "pdf": "doc20_CP503.pdf",
+    "scan_profile": "photo",
+    "fields": {
+      "notice_type": "CP503",
+      "tax_year": "2024",
+      "notice_date": "2026-08-14",
+      "taxpayer_ssn_last4": "1442",
+      "taxpayer_name": "VICTOR MORAVEC",
+      "pay_by_date": "2026-08-24",
+      "amount_due": "2560.98",
+      "caller_id": "597450"
+    }
+  }
+}

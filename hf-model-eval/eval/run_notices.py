@@ -11,8 +11,10 @@ Items: keys of {data-root}/notices/ground_truth.json (notice01, notice02, ...); 
     {"notice01": {"fields": {...} or null, "json_valid": true, "raw_output": "...", "latency_sec": 1.23,
                   "model": "...", "runner": "openai_compat", "retry": false, ...}}
 
-The output file is rewritten after EVERY item, so a crash keeps progress; rerunning the same command resumes
-(ids already in the file are skipped) unless --overwrite is given.
+The output file is rewritten after EVERY item, so a crash keeps progress; rerunning the same command resumes:
+ids that already hold an answer are skipped, ids still pending (manual runner) or that ended in a backend error
+(server down, two timeouts) are redone. --overwrite redoes the selected ids (all of them, or just --ids, keeping
+the other records in the file).
 
 Examples (run from the repo root):
 
@@ -338,7 +340,9 @@ def main(argv=None):
     ap.add_argument("--data-root", default=str(ROOT / "data"))
     ap.add_argument("--out", help=f"default results/pred_{AREA}_<name>.json")
     ap.add_argument("--ids", help="comma list of ids to run (default: every id in ground_truth.json)")
-    ap.add_argument("--overwrite", action="store_true", help="start fresh instead of resuming the output file")
+    ap.add_argument("--overwrite", action="store_true",
+                    help="redo ids even if already in the output file (with --ids only those ids are replaced and the "
+                         "rest of the file is kept; without --ids the file starts fresh)")
     ap.add_argument("--max-tokens", type=int, default=800)
     ap.add_argument("--temperature", type=float, default=0.0)
     ap.add_argument("--json-mode", action="store_true",
@@ -372,12 +376,23 @@ def main(argv=None):
         sys.exit("nothing to run (no items)")
 
     existing = {}
-    if out_path.exists() and not a.overwrite:
+    if out_path.exists():
         try:
             existing = json.load(open(out_path, encoding="utf-8"))
-        except json.JSONDecodeError as e:
-            sys.exit(f"cannot resume: {out_path} is not valid JSON ({e}); use --overwrite or fix the file")
-    done = {k for k, v in existing.items() if isinstance(v, dict) and not v.get("pending")}
+            if not isinstance(existing, dict):
+                raise ValueError("top level is not a JSON object keyed by id")
+        except (json.JSONDecodeError, ValueError) as e:
+            if not a.overwrite:
+                sys.exit(f"cannot resume: {out_path} is not valid ({e}); use --overwrite or fix the file")
+            existing = {}
+    if a.overwrite:
+        # --overwrite redoes the SELECTED ids: with --ids the other records in the file are kept (so redoing one
+        # notice does not wipe the rest); without --ids the whole file starts fresh.
+        selected = {it[0] for it in items}
+        existing = {k: v for k, v in existing.items() if k not in selected} if a.ids else {}
+    # A record counts as done when it holds a real answer (valid JSON or not). Records still pending (manual runner,
+    # no response file yet) or that ended in a backend error (server down, timeout twice...) are redone on resume.
+    done = {k for k, v in existing.items() if isinstance(v, dict) and not v.get("pending") and not v.get("error")}
     todo = [it for it in items if it[0] not in done]
 
     print(f"area={AREA} runner={a.runner} model={a.model} name={a.name} json_mode={a.json_mode} "
@@ -386,7 +401,8 @@ def main(argv=None):
 
     if a.dry_run:
         for i, text, prompt in items:
-            st = "done" if i in done else ("pending" if i in existing else "todo")
+            prev = existing.get(i) if isinstance(existing.get(i), dict) else None
+            st = "done" if i in done else ("pending" if prev and prev.get("pending") else ("error" if prev else "todo"))
             print(f"  {i:10s} {st:8s} text={len(text):6d} chars  prompt={len(prompt):6d} chars", flush=True)
         if a.runner == "manual":
             print(f"manual prompts would go to {ROOT / 'results' / f'manual_{AREA}_{a.name}'}")
@@ -399,7 +415,7 @@ def main(argv=None):
         return 0
 
     runner = make_runner(a)
-    results = {} if a.overwrite else dict(existing)
+    results = dict(existing)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     new = []
     try:

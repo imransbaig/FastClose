@@ -139,7 +139,7 @@ class Page:
     """Thin canvas wrapper; all coordinates are (x, top) measured from the top-left corner."""
 
     def __init__(self, path, title):
-        self.c = canvas.Canvas(path, pagesize=letter)
+        self.c = canvas.Canvas(path, pagesize=letter, invariant=1)  # fixed PDF metadata -> reproducible bytes
         self.c.setTitle(title)
 
     def text(self, x, top, s, font=CAP, size=CAP_SZ, align="left", gray=0.0):
@@ -255,7 +255,9 @@ def check_row(p, x, top, w, label, items):
 
 def mini_table(p, x, top, w, label, caption, col_titles, rows, extra=()):
     """Lettered field with a Beginning/Ending style two-column table. Returns height."""
-    h = 10 + 9 + len(rows) * 11 + len(extra) * 11 + 3
+    extra = [(chk, wrap(txt, CAP, CAP_SZ, w - 32)) for chk, txt in extra]
+    n_extra = sum(len(ls) for _, ls in extra)
+    h = 10 + 9 + len(rows) * 11 + n_extra * 10 + 3
     p.rect(x, top, w, h)
     p.text(x + 3, top + 9.5, label, CAPB, CAP_SZ + 0.5)
     p.text(x + 15, top + 9.5, caption, CAP, CAP_SZ)
@@ -270,13 +272,12 @@ def mini_table(p, x, top, w, label, caption, col_titles, rows, extra=()):
         p.text(xr[0], y, v1, VAL, VAL_SZ, align="right")
         p.text(xr[1], y, v2, VAL, VAL_SZ, align="right")
         y += 11
-    for checked, txt in extra:
+    for checked, lines in extra:
         if checked is not None:
             p.checkbox(x + 15, y - 6.5, checked)
-            p.text(x + 27, y, txt, CAP, CAP_SZ)
-        else:
-            p.text(x + 15, y, txt, CAP, CAP_SZ)
-        y += 11
+        for ln in lines:
+            p.text(x + 27 if checked is not None else x + 15, y, ln, CAP, CAP_SZ)
+            y += 10
     return h
 
 
@@ -315,8 +316,8 @@ def k1_header(p, form_no, year, title, code_no):
 
 def k1_footer(p, form_no, year, cat_no, url):
     p.text(30, 760, f"For Paperwork Reduction Act Notice, see the Instructions for {form_no}.", CAP, 7)
-    p.text(345, 760, url, CAP, 7)
-    p.text(445, 760, f"Cat. No. {cat_no}", CAP, 7)
+    p.text(300, 760, url, CAP, 7)
+    p.text(392, 760, f"Cat. No. {cat_no}", CAP, 7)
     p.text(582, 760, f"Schedule K-1 ({form_no}) {year}", CAP, 7, align="right")
 
 
@@ -442,10 +443,10 @@ def gen_k1_1065(n, pdf_path, partner_type, loss):
                  [partner["name"], partner["street"], partner["csz"]])
     top += check_row(p, x, top, w, "G", [
         (partner_type == "GENERAL", "General partner or LLC member-manager", 15),
-        (partner_type == "LIMITED", "Limited partner or other LLC member", 155)])
+        (partner_type == "LIMITED", "Limited partner or other LLC member", 160)])
     top += check_row(p, x, top, w, "H1", [(True, "Domestic partner", 15), (False, "Foreign partner", 155)])
     top += check_row(p, x, top, w, "H2", [
-        (False, "If the partner is a disregarded entity (DE), enter the partner's:   TIN ________   Name ____________", 15)])
+        (False, "If the partner is a disregarded entity (DE), enter the partner's TIN and name:", 15)])
     top += field(p, x, top, w, "I1", "What type of entity is this partner?", ["INDIVIDUAL"])
     top += check_row(p, x, top, w, "I2", [
         (False, "If this partner is a retirement plan (IRA/SEP/Keogh/etc.), check here", 15)])
@@ -473,7 +474,7 @@ def gen_k1_1065(n, pdf_path, partner_type, loss):
     p.text(x + 15, top - 5.5, "Did the partner contribute property with a built-in gain (loss)?", CAP, CAP_SZ)
     top += amount_table(p, x, top, w, "N", "Partner's Share of Net Unrecognized Section 704(c) Gain or (Loss)", [
         ("Beginning", "0.00"), ("Ending", "0.00")])
-    if top < 710:
+    if top < 728:
         irs_use_only(p, x, top, w, 750 - top)
     k1_footer(p, "Form 1065", year, "11394R", "www.irs.gov/Form1065")
     p.save()
@@ -643,7 +644,7 @@ def gen_wage_income_transcript(n, pdf_path):
         "",
     ]
     for w in w2s:
-        L += [("c", "Form W-2 Wage and Tax Statement")]
+        L += [("c", "Form W-2 Wage and Tax Statement"), ""]
         L += emp_block("Employer", w["emp"], "Employer Identification Number (EIN):")
         L += person_block("Employee", "Employee's Social Security Number:")
         L += [
@@ -658,7 +659,7 @@ def gen_wage_income_transcript(n, pdf_path):
             kv("Retirement Plan Indicator:", "Yes" if w["deferred"] else "Unanswered"),
             "",
         ]
-    L += [("c", "Form 1099-INT")]
+    L += [("c", "Form 1099-INT"), ""]
     L += emp_block("Payer", bank, "Payer's Federal Identification Number (FIN):")
     L += person_block("Recipient", "Recipient's Identification Number:")
     L += [
@@ -668,6 +669,7 @@ def gen_wage_income_transcript(n, pdf_path):
         kv("Tax-Exempt Interest:", "$0.00"),
         "",
         ("c", "Form 1099-NEC"),
+        "",
     ]
     L += emp_block("Payer", nec_payer, "Payer's Federal Identification Number (FIN):")
     L += person_block("Recipient", "Recipient's Identification Number:")
@@ -678,7 +680,7 @@ def gen_wage_income_transcript(n, pdf_path):
         kv("Direct Sales Indicator:", "No"),
     ]
     p = Page(pdf_path, "Wage and Income Transcript")
-    end = p.mono_lines(36, 34, L, size=9, leading=9.4, center_w=540)
+    end = p.mono_lines(36, 32, L, size=9, leading=9.2, center_w=540)
     assert end < 780, f"wage transcript overflow: {end}"
     p.save()
 
@@ -727,7 +729,7 @@ def gen_account_transcript(n, pdf_path):
     taxable = max(0, agi - std)
     tax = income_tax(taxable, br)
     withholding = round(tax * rng.uniform(1.04, 1.32) / 100) * 100
-    credit = rng.choice([1700, 2000, 1000, 0]) * 100
+    credit = rng.choice([1700, 2000, 1000, 500]) * 100
     refund = withholding + credit - tax
     assert refund > 0
     proc = date(2026, rng.randint(2, 4), rng.randint(1, 28))
@@ -938,7 +940,7 @@ def gen_cp2000(n, pdf_path):
     p.text(205, top + 19, money(total, dollar=True), VAL, 11)
     p.text(330, top + 19, "Respond by", CAPB, 10)
     p.text(410, top + 19, long_date(respond_by), VAL, 11)
-    top += 44
+    top += 48
     top = section(p, top, "Summary of proposed changes")
     top = kv_rows(p, top, [("Tax you owe", money(tax, dollar=True)),
                            ("Penalty (accuracy-related)", money(penalty, dollar=True)),
@@ -961,7 +963,7 @@ def gen_cp2000(n, pdf_path):
     top += 10
     p.text(36, top, "Total income change", CAPB, 8)
     p.text(576, top, money(unreported, dollar=True), VAL, VAL_SZ, align="right")
-    top += 18
+    top += 26
     top = section(p, top, "What you need to do immediately")
     top = bullets(p, top, [
         f"Review this notice and compare our changes to the information on your {year} tax return.",
