@@ -13,3 +13,9 @@ Thumbs.db
 # Node.js dependencies (if applicable)
 node_modules/
 
+
+# model weights and caches (hf-model-eval)
+hf-model-eval/models/
+__pycache__/
+*.pyc
+hf-model-eval/results/manual_*/

@@ -1,0 +1,18 @@
+huggingface_hub>=1.0
+pandas>=2.0
+openpyxl
+python-dateutil
+requests
+Pillow
+numpy
+scipy
+soundfile
+pypdfium2
+reportlab
+jiwer
+whisper-normalizer
+sherpa-onnx           # CPU ONNX runtime for Whisper / Parakeet / Canary / Moonshine / Kokoro TTS
+# optional, for the transformers runners on your own machine:
+# torch transformers accelerate
+# optional, for GGUF text models:
+# llama-cpp-python

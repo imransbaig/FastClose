@@ -1,0 +1,34 @@
+{
+  "_notes": {
+    "normalization": "All ground-truth values are stored canonical: money as plain number string with 2 decimals and no $ or commas (e.g. 84210.55); dates as YYYY-MM-DD; EIN as NN-NNNNNNN; SSN/TIN last4 as 4 digits; names UPPERCASE with single spaces; codes UPPERCASE; checkboxes as true/false; tax_year as 4-digit string. score.py applies the same normalization to model output before exact-match.",
+    "redaction": "Synthetic identities only. SSNs are printed on the documents as XXX-XX-1234 (last 4 visible), which matches how redacted client copies look. EINs are synthetic.",
+    "scoring": "field-level exact match after normalization. A missing field counts as wrong. Per-doc accuracy = correct/total fields; area accuracy = micro-average over all fields in all docs."
+  },
+  "doc_types": {
+    "W2": ["tax_year", "employer_ein", "employer_name", "employee_ssn_last4", "employee_name", "box1_wages", "box2_fed_withheld", "box3_ss_wages", "box4_ss_tax", "box5_medicare_wages", "box6_medicare_tax", "box12a_code", "box12a_amount", "box15_state", "box16_state_wages", "box17_state_tax"],
+    "1099NEC": ["tax_year", "payer_name", "payer_tin", "recipient_name", "recipient_tin_last4", "box1_nonemployee_comp", "box4_fed_withheld"],
+    "1099INT": ["tax_year", "payer_name", "recipient_name", "recipient_tin_last4", "box1_interest_income", "box3_treasury_interest", "box4_fed_withheld", "box8_tax_exempt_interest"],
+    "1099DIV": ["tax_year", "payer_name", "recipient_name", "recipient_tin_last4", "box1a_total_ordinary_dividends", "box1b_qualified_dividends", "box2a_total_capital_gain", "box4_fed_withheld", "box7_foreign_tax_paid"],
+    "1099R": ["tax_year", "payer_name", "recipient_name", "recipient_tin_last4", "box1_gross_distribution", "box2a_taxable_amount", "box4_fed_withheld", "box7_distribution_code", "ira_sep_simple_checkbox"],
+    "1099B_SUMMARY": ["tax_year", "payer_name", "recipient_name", "recipient_tin_last4", "short_term_proceeds", "short_term_cost_basis", "long_term_proceeds", "long_term_cost_basis", "wash_sale_loss_disallowed", "box4_fed_withheld"],
+    "K1_1065": ["tax_year", "partnership_name", "partnership_ein", "partner_name", "partner_tin_last4", "partner_type", "profit_share_pct_ending", "box1_ordinary_income", "box2_net_rental_real_estate", "box4a_guaranteed_payments_services", "box5_interest_income", "box14a_self_employment_earnings", "box19a_distributions"],
+    "K1_1120S": ["tax_year", "corporation_name", "corporation_ein", "shareholder_name", "shareholder_tin_last4", "ownership_pct", "box1_ordinary_income", "box2_net_rental_real_estate", "box4_interest_income", "box5a_ordinary_dividends", "box16d_distributions"],
+    "IRS_WAGE_INCOME_TRANSCRIPT": ["tax_year", "taxpayer_ssn_last4", "taxpayer_name", "form_count", "w2_1_employer_name", "w2_1_wages", "w2_1_fed_withheld", "int_1_payer_name", "int_1_interest", "nec_1_payer_name", "nec_1_amount"],
+    "IRS_ACCOUNT_TRANSCRIPT": ["tax_year", "taxpayer_ssn_last4", "taxpayer_name", "filing_status", "adjusted_gross_income", "taxable_income", "tax_per_return", "account_balance", "accrued_interest", "accrued_penalty", "tc150_date", "tc806_withholding", "tc846_refund_amount", "tc846_date"],
+    "CP2000": ["notice_type", "tax_year", "notice_date", "taxpayer_ssn_last4", "taxpayer_name", "response_deadline", "proposed_tax_increase", "proposed_penalty", "proposed_interest", "total_proposed_amount_due", "unreported_payer_name", "unreported_amount"],
+    "CP14": ["notice_type", "tax_year", "notice_date", "taxpayer_ssn_last4", "taxpayer_name", "pay_by_date", "tax_owed", "failure_to_pay_penalty", "interest", "amount_due"],
+    "CP503": ["notice_type", "tax_year", "notice_date", "taxpayer_ssn_last4", "taxpayer_name", "pay_by_date", "amount_due", "caller_id"]
+  },
+  "call_summary_fields": ["client_name", "entity_type", "tax_year_discussed", "topic_code", "key_amount", "key_date", "follow_up_action_code"],
+  "call_enums": {
+    "entity_type": ["INDIVIDUAL", "S_CORP", "PARTNERSHIP", "C_CORP", "SOLE_PROP", "TRUST"],
+    "topic_code": ["ESTIMATED_PAYMENTS", "IRS_NOTICE", "PROPERTY_SALE", "MISSING_DOCUMENTS", "YEAR_END_PLANNING", "ENTITY_ELECTION", "AMENDED_RETURN", "EXTENSION", "PAYROLL", "RETIREMENT"],
+    "follow_up_action_code": ["SEND_ORGANIZER", "FILE_EXTENSION", "RESPOND_TO_NOTICE", "SCHEDULE_MEETING", "REQUEST_DOCUMENTS", "PREPARE_ESTIMATE", "PREPARE_RETURN", "SEND_ENGAGEMENT_LETTER", "CALL_IRS", "NO_ACTION"]
+  },
+  "notice_fields": ["notice_type", "tax_year", "notice_date", "amount_due", "response_deadline", "action_required", "urgency"],
+  "notice_enums": {
+    "notice_type": ["CP2000", "CP2501", "CP14", "CP501", "CP503", "CP504", "LT11", "CP49", "CP12", "CP11", "CP22A", "CP23", "CP161", "CP75", "4883C", "5071C", "CP3219A", "CP90", "LT16", "CP259", "CP515", "CP71C", "CP2057", "CP21B", "CP05"],
+    "action_required": ["PAY", "RESPOND_WITH_DOCUMENTATION", "VERIFY_IDENTITY", "FILE_RETURN", "NO_ACTION", "CALL_IRS", "REQUEST_HEARING"],
+    "urgency": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+  }
+}
