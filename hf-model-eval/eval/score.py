@@ -149,14 +149,16 @@ def load_gt(area):
     if area == "docs":
         p = ROOT / "data/docs/ground_truth.json"
         gt = json.load(open(p))
-        return {k: {"type": v["doc_type"], "fields": v["fields"]} for k, v in gt.items()}
+        return {k: {"type": v["doc_type"], "fields": v["fields"]} for k, v in gt.items() if not k.startswith("_")}
     if area == "notices":
         gt = json.load(open(ROOT / "data/notices/ground_truth.json"))
-        return {k: {"type": "NOTICE", "fields": {f: v[f] for f in FIELDS["notice_fields"]}} for k, v in gt.items()}
+        return {k: {"type": "NOTICE", "fields": {f: v[f] for f in FIELDS["notice_fields"]}} for k, v in gt.items() if not k.startswith("_")}
     if area == "calls":
         gt = json.load(open(ROOT / "data/calls/ground_truth.json"))
         out = {}
         for k, v in gt.items():
+            if k.startswith("_"):
+                continue
             ref = (ROOT / "data/calls" / f"{k}.ref.txt").read_text()
             out[k] = {"type": "CALL", "fields": {f: v[f] for f in FIELDS["call_summary_fields"]}, "ref": ref}
         return out
