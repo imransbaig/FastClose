@@ -16,7 +16,9 @@ Transcript source (exactly one):
                                              measure the summarizer alone, with no ASR errors (upper bound for stage 2).
 
 Output (the "calls" format documented in eval/score.py), one record per id, rewritten after EVERY item so a crash keeps
-progress; rerunning the same command resumes (ids already in the file are skipped) unless --overwrite:
+progress; rerunning the same command resumes (ids that hold an answer are skipped; pending / errored ids are redone).
+--overwrite redoes the selected ids (with --ids only those records are replaced and the rest of the file is kept;
+without --ids the file starts fresh):
 
     {"call01": {"transcript": "<the transcript used>", "summary": {...} | null, "json_valid": true, "raw_output": "...",
                 "asr_model": "models/sherpa-onnx-whisper-large-v3", "asr_name": "whisper-large-v3", "asr_runner": "...",
@@ -409,7 +411,9 @@ def main(argv=None):
     ap.add_argument("--data-root", default=str(ROOT / "data"))
     ap.add_argument("--out", help=f"default results/pred_{AREA}_<name>.json")
     ap.add_argument("--ids", help="comma list of call ids to run (default: every id with a transcript)")
-    ap.add_argument("--overwrite", action="store_true", help="start fresh instead of resuming the output file")
+    ap.add_argument("--overwrite", action="store_true",
+                    help="redo ids even if already in the output file (with --ids only those ids are replaced and the "
+                         "rest of the file is kept; without --ids the file starts fresh)")
     ap.add_argument("--max-tokens", type=int, default=800)
     ap.add_argument("--temperature", type=float, default=0.0)
     ap.add_argument("--json-mode", action="store_true",
@@ -452,11 +456,22 @@ def main(argv=None):
     items = [(i, src, call_summary_prompt(src["transcript"])) for i, src in sources.items()]
 
     existing = {}
-    if out_path.exists() and not a.overwrite:
+    if out_path.exists():
         try:
             existing = json.load(open(out_path, encoding="utf-8"))
-        except json.JSONDecodeError as e:
-            sys.exit(f"cannot resume: {out_path} is not valid JSON ({e}); use --overwrite or fix the file")
+            if not isinstance(existing, dict):
+                raise ValueError("top level is not a JSON object keyed by id")
+        except (json.JSONDecodeError, ValueError) as e:
+            if not a.overwrite:
+                sys.exit(f"cannot resume: {out_path} is not valid ({e}); use --overwrite or fix the file")
+            existing = {}
+    if a.overwrite:
+        # --overwrite redoes the SELECTED ids: with --ids the other records in the file are kept (so redoing one
+        # call does not wipe the rest); without --ids the whole file starts fresh.  Same rule as run_notices.py.
+        selected = {it[0] for it in items}
+        existing = {k: v for k, v in existing.items() if k not in selected} if a.ids else {}
+    # A record counts as done when it holds a real answer (valid JSON or not). Records still pending (manual runner,
+    # no response file yet) or that ended in a backend error (server down, timeout twice...) are redone on resume.
     done = {k for k, v in existing.items() if isinstance(v, dict) and not v.get("pending") and not v.get("error")}
     todo = [it for it in items if it[0] not in done]
 
@@ -468,7 +483,8 @@ def main(argv=None):
 
     if a.dry_run:
         for i, src, prompt in items:
-            st = "done" if i in done else ("pending" if i in existing else "todo")
+            prev = existing.get(i) if isinstance(existing.get(i), dict) else None
+            st = "done" if i in done else ("pending" if prev and prev.get("pending") else ("error" if prev else "todo"))
             words = len(src["transcript"].split())
             print(f"  {i:10s} {st:8s} asr_model={str(src['model'])[:40]:40s} transcript={words:5d} words "
                   f"prompt={len(prompt):6d} chars{'  EMPTY TRANSCRIPT' if not words else ''}", flush=True)
@@ -484,7 +500,7 @@ def main(argv=None):
         return 0
 
     runner = make_runner(a)
-    results = {} if a.overwrite else dict(existing)
+    results = dict(existing)  # already filtered for --overwrite / --ids above
     out_path.parent.mkdir(parents=True, exist_ok=True)
     meta_path = out_path.with_name(out_path.name.replace(".json", "") + ".meta.json")
     meta = {"area": AREA, "args": vars(a), "asr_label": asr_label, "started": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}

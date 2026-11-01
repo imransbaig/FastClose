@@ -72,9 +72,19 @@ for text areas, `--runner llama_cpp --model path/to/model.gguf`.
 
 ## 4. Run the evals
 
-All runners share the same flags: `--runner {openai_compat,transformers,llama_cpp,manual} --model <id|path> --name <label>
-[--ids doc01,doc02] [--overwrite] [--max-tokens 800] [--temperature 0] [--base-url ... --api-key ...] [--json-mode] [--dry-run]`.
-Output is written after **every** item; rerun the same command to resume. `--dry-run` shows the exact prompts and calls nothing.
+The three model runners (`run_docs.py`, `summarize_calls.py`, `run_notices.py`) share the same flags:
+`--runner {openai_compat,transformers,llama_cpp,manual} --model <id|path> --name <label> [--ids doc01,doc02] [--overwrite]
+[--max-tokens 800] [--temperature 0] [--base-url ... --api-key ... --timeout 600] [--json-mode] [--dry-run]`.
+Differences: `run_docs.py` defaults to `--runner openai_compat`, adds `--image-max-side 1600`, and its `--runner llama_cpp` is
+refused (text-only; serve a GGUF vision model with `llama-server --mmproj` and use `openai_compat`); `summarize_calls.py` and
+`run_notices.py` add `--extra-body '<json>'` (merged into the request body), `--chat-kwargs '<json>'` (transformers), `--n-ctx`,
+`--n-gpu-layers` (llama_cpp); `summarize_calls.py` also needs exactly one of `--transcripts <asr json>` / `--use-reference`.
+`run_asr.py` has its own flags: `--runner {sherpa_onnx,transformers,openai_compat} --model <dir|id> --name <label>` (all required)
+`[--ids call01,call02] [--overwrite] [--threads N] [--no-vad] [--max-segment 20] [--max-chunk 28] [--base-url ... --api-key ...]`;
+it has no `--json-mode` / `--dry-run`.
+Output is written after **every** item; rerun the same command to resume (ids with an answer are skipped; pending / errored ids
+are redone). `--overwrite` redoes the selected ids (with `--ids`, the other records in the file are kept). `--dry-run` shows the
+exact prompts and calls nothing (for `run_docs.py` it also works without `--model`).
 
 ```bash
 # A. docs: image + prompt -> JSON fields
@@ -86,13 +96,15 @@ python eval/run_asr.py --runner sherpa_onnx  --model models/sherpa-onnx-whisper-
 python eval/run_asr.py --runner sherpa_onnx  --model models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8 --name parakeet-v3
 python eval/run_asr.py --runner transformers --model openai/whisper-large-v3                        --name whisper-large-v3-hf
 python eval/run_asr.py --runner openai_compat --base-url http://localhost:8000/v1 --model whisper-1 --name server-asr
-#    -> results/asr_<name>.json  {"call01": {"transcript": ..., "model": ..., "audio_sec": ..., "rtf": ...}}
+bash eval/run_all_asr.sh                                   # every downloaded sherpa-onnx model in models/, one after the other
+#    -> results/asr_<name>.json  {"call01": {"transcript": ..., "model": ..., "runner": ..., "audio_sec": ..., "latency_sec": ..., "rtf": ..., "segments": ...}}
 
 # B. stage 2: transcript -> call-log JSON (text model); the ASR transcript or the reference transcript
 python eval/summarize_calls.py --transcripts results/asr_whisper-large-v3.json --runner openai_compat \
     --base-url http://localhost:8000/v1 --model Qwen/Qwen3-4B-Instruct-2507 --name qwen3-4b_whisper-large-v3 --json-mode
 python eval/summarize_calls.py --use-reference --runner openai_compat --model Qwen/Qwen3-4B-Instruct-2507 --json-mode
 #    (--use-reference = ground-truth transcripts, asr_model="reference": the summarizer's ceiling with zero ASR errors)
+#    without --name the output is results/pred_calls_<model>_<asr label>.json, e.g. pred_calls_Qwen3-4B-Instruct-2507_reference.json
 
 # C. notices: text -> JSON classification
 python eval/run_notices.py --runner openai_compat --base-url http://localhost:8000/v1 \
@@ -115,7 +127,8 @@ python eval/score.py --area notices --pred results/pred_notices_qwen3-4b.json   
 python eval/score.py --compile        # -> results/eval_sheet.csv and results/eval_sheet.xlsx
 ```
 
-Columns: area, model, items, fields_total, fields_correct, field_exact_match, wer_mean, json_invalid_items, per_type accuracy.
+Columns: area, model, items, items_predicted, fields_total, fields_correct, field_exact_match, wer_mean, json_invalid_items,
+scored_at, per_type accuracy. Rows are sorted per area by field_exact_match, best first.
 The baseline row (section 7) sits in the same table; a model is worth switching to only if its `field_exact_match` beats it.
 
 ## 7. Baseline row with the manual runner (your current method: a human, or Claude in the desktop app)
@@ -123,12 +136,13 @@ The baseline row (section 7) sits in the same table; a model is worth switching 
 The manual runner writes the exact prompt each model sees and reads your answer back, so the baseline is compared fairly.
 
 ```bash
-python eval/run_docs.py        --runner manual --name baseline_claude            # results/manual_docs_baseline_claude/<id>.prompt.txt (+ <id>.png)
+python eval/run_docs.py        --runner manual --model claude-desktop --name baseline_claude   # results/manual_docs_baseline_claude/<id>.prompt.txt (+ <id>.png); run_docs needs --model
 python eval/summarize_calls.py --runner manual --name baseline_claude --use-reference
 python eval/run_notices.py     --runner manual --name baseline_claude
 # 1. open each <id>.prompt.txt (docs: first line is the image path - attach that image), get the answer
 # 2. save the answer as <id>.response.txt in the same folder (an invalid-JSON answer gets <id>.retry.prompt.txt -> <id>.retry.response.txt)
 # 3. rerun the SAME command: answered ids are collected, unanswered stay "pending"
+#    (run_docs.py records an invalid first answer as done, not pending: after writing <id>.retry.response.txt rerun it with --overwrite --ids <id>)
 python eval/score.py --area docs --pred results/pred_docs_baseline_claude.json --name baseline_claude   # then --compile
 ```
 
@@ -141,10 +155,12 @@ hf_pull.py               Hub API pull (areas A/B/C, trending + downloads, licens
 eval/fields.json         field schema per doc type, call-log / notice enums, normalization rules
 eval/prompts.py          doc_prompt / notice_prompt / call_summary_prompt / parse_json_object  (shared by every runner)
 eval/run_docs.py         area A runner        eval/run_asr.py + eval/summarize_calls.py   area B      eval/run_notices.py   area C
+eval/run_all_asr.sh      area B stage 1 for every downloaded sherpa-onnx model in one go
 eval/score.py            scoring (--area ...) and the compiled sheet (--compile)
 data/{docs,calls,notices}/   items + ground_truth.json          gen/   generators for the synthetic set
 models/                  local ASR/TTS ONNX models (download_models.sh)        results/   asr_*, pred_*, score_*, eval_sheet.*
 pulls/<date>/            dated Hub pulls - rerun and diff
+tests/                   offline test of hf_pull.py with a fake HfApi (python tests/test_hf_pull_offline.py; no network)
 ```
 
 ## Rerun checklist (every two weeks)

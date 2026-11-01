@@ -1,0 +1,252 @@
+{
+ "notice01": {
+  "notice_type": "CP2000",
+  "tax_year": "2024",
+  "notice_date": "2026-04-29",
+  "amount_due": "947.60",
+  "response_deadline": "2026-05-29",
+  "action_required": "RESPOND_WITH_DOCUMENTATION",
+  "urgency": "HIGH",
+  "rubric_reason": "CP2000 -> RESPOND_WITH_DOCUMENTATION / HIGH per rubric; amount due 947.60 is what the notice asks the taxpayer to pay; deadline stated explicitly as May 29, 2026"
+ },
+ "notice02": {
+  "notice_type": "CP2501",
+  "tax_year": "2024",
+  "notice_date": "2026-04-30",
+  "amount_due": "0.00",
+  "response_deadline": "2026-05-30",
+  "action_required": "RESPOND_WITH_DOCUMENTATION",
+  "urgency": "HIGH",
+  "rubric_reason": "CP2501 -> RESPOND_WITH_DOCUMENTATION / HIGH per rubric; no payment requested -> 0.00; deadline stated as a 30-day window; ground truth = notice date 2026-04-30 + 30 calendar days = 2026-05-30"
+ },
+ "notice03": {
+  "notice_type": "CP14",
+  "tax_year": "2025",
+  "notice_date": "2026-05-05",
+  "amount_due": "12881.45",
+  "response_deadline": "2026-05-26",
+  "action_required": "PAY",
+  "urgency": "HIGH",
+  "rubric_reason": "CP14 -> PAY / HIGH per rubric; amount due 12881.45 is what the notice asks the taxpayer to pay; deadline stated as a 21-day window; ground truth = notice date 2026-05-05 + 21 calendar days = 2026-05-26"
+ },
+ "notice04": {
+  "notice_type": "CP501",
+  "tax_year": "2024",
+  "notice_date": "2026-01-22",
+  "amount_due": "35084.82",
+  "response_deadline": "2026-02-12",
+  "action_required": "PAY",
+  "urgency": "MEDIUM",
+  "rubric_reason": "CP501 -> PAY / MEDIUM per rubric; amount due 35084.82 is what the notice asks the taxpayer to pay; deadline stated explicitly as February 12, 2026"
+ },
+ "notice05": {
+  "notice_type": "CP503",
+  "tax_year": "2023",
+  "notice_date": "2026-05-19",
+  "amount_due": "17956.65",
+  "response_deadline": "2026-05-29",
+  "action_required": "PAY",
+  "urgency": "HIGH",
+  "rubric_reason": "CP503 -> PAY / HIGH per rubric; amount due 17956.65 is what the notice asks the taxpayer to pay; deadline stated as a 10-day window; ground truth = notice date 2026-05-19 + 10 calendar days = 2026-05-29"
+ },
+ "notice06": {
+  "notice_type": "CP504",
+  "tax_year": "2024",
+  "notice_date": "2026-09-09",
+  "amount_due": "2019.03",
+  "response_deadline": "2026-10-09",
+  "action_required": "PAY",
+  "urgency": "CRITICAL",
+  "rubric_reason": "CP504 -> PAY / CRITICAL per rubric; amount due 2019.03 is what the notice asks the taxpayer to pay; deadline stated explicitly as October 9, 2026"
+ },
+ "notice07": {
+  "notice_type": "LT11",
+  "tax_year": "2023",
+  "notice_date": "2026-02-10",
+  "amount_due": "20660.19",
+  "response_deadline": "2026-03-12",
+  "action_required": "REQUEST_HEARING",
+  "urgency": "CRITICAL",
+  "rubric_reason": "LT11 -> REQUEST_HEARING / CRITICAL per rubric; amount due 20660.19 is what the notice asks the taxpayer to pay; deadline stated as a 30-day window; ground truth = notice date 2026-02-10 + 30 calendar days = 2026-03-12"
+ },
+ "notice08": {
+  "notice_type": "CP49",
+  "tax_year": "2025",
+  "notice_date": "2026-05-18",
+  "amount_due": "0.00",
+  "response_deadline": "NONE",
+  "action_required": "NO_ACTION",
+  "urgency": "LOW",
+  "rubric_reason": "CP49 -> NO_ACTION / LOW per rubric; no payment requested -> 0.00; notice sets no deadline for the taxpayer -> NONE"
+ },
+ "notice09": {
+  "notice_type": "CP12",
+  "tax_year": "2025",
+  "notice_date": "2026-09-06",
+  "amount_due": "0.00",
+  "response_deadline": "2026-11-05",
+  "action_required": "NO_ACTION",
+  "urgency": "LOW",
+  "rubric_reason": "CP12 -> NO_ACTION / LOW per rubric; no payment requested -> 0.00; deadline stated as a 60-day window; ground truth = notice date 2026-09-06 + 60 calendar days = 2026-11-05"
+ },
+ "notice10": {
+  "notice_type": "CP11",
+  "tax_year": "2025",
+  "notice_date": "2026-06-03",
+  "amount_due": "2579.85",
+  "response_deadline": "2026-06-24",
+  "action_required": "PAY",
+  "urgency": "MEDIUM",
+  "rubric_reason": "CP11 -> PAY / MEDIUM per rubric; amount due 2579.85 is what the notice asks the taxpayer to pay; deadline stated explicitly as June 24, 2026"
+ },
+ "notice11": {
+  "notice_type": "CP22A",
+  "tax_year": "2025",
+  "notice_date": "2026-09-12",
+  "amount_due": "5224.49",
+  "response_deadline": "2026-10-03",
+  "action_required": "PAY",
+  "urgency": "HIGH",
+  "rubric_reason": "CP22A -> PAY / HIGH per rubric; amount due 5224.49 is what the notice asks the taxpayer to pay; deadline stated explicitly as October 3, 2026"
+ },
+ "notice12": {
+  "notice_type": "CP23",
+  "tax_year": "2025",
+  "notice_date": "2026-09-04",
+  "amount_due": "1046.40",
+  "response_deadline": "2026-09-25",
+  "action_required": "PAY",
+  "urgency": "HIGH",
+  "rubric_reason": "CP23 -> PAY / HIGH per rubric; amount due 1046.40 is what the notice asks the taxpayer to pay; deadline stated as a 21-day window; ground truth = notice date 2026-09-04 + 21 calendar days = 2026-09-25"
+ },
+ "notice13": {
+  "notice_type": "CP161",
+  "tax_year": "2025",
+  "notice_date": "2026-04-17",
+  "amount_due": "3401.83",
+  "response_deadline": "2026-05-08",
+  "action_required": "PAY",
+  "urgency": "HIGH",
+  "rubric_reason": "CP161 -> PAY / HIGH per rubric; amount due 3401.83 is what the notice asks the taxpayer to pay; deadline stated explicitly as May 8, 2026"
+ },
+ "notice14": {
+  "notice_type": "CP75",
+  "tax_year": "2025",
+  "notice_date": "2026-06-16",
+  "amount_due": "0.00",
+  "response_deadline": "2026-07-16",
+  "action_required": "RESPOND_WITH_DOCUMENTATION",
+  "urgency": "HIGH",
+  "rubric_reason": "CP75 -> RESPOND_WITH_DOCUMENTATION / HIGH per rubric; no payment requested -> 0.00; deadline stated as a 30-day window; ground truth = notice date 2026-06-16 + 30 calendar days = 2026-07-16"
+ },
+ "notice15": {
+  "notice_type": "4883C",
+  "tax_year": "2025",
+  "notice_date": "2026-07-19",
+  "amount_due": "0.00",
+  "response_deadline": "2026-08-18",
+  "action_required": "VERIFY_IDENTITY",
+  "urgency": "MEDIUM",
+  "rubric_reason": "4883C -> VERIFY_IDENTITY / MEDIUM per rubric; no payment requested -> 0.00; deadline stated as a 30-day window; ground truth = notice date 2026-07-19 + 30 calendar days = 2026-08-18"
+ },
+ "notice16": {
+  "notice_type": "5071C",
+  "tax_year": "2025",
+  "notice_date": "2026-05-24",
+  "amount_due": "0.00",
+  "response_deadline": "2026-06-23",
+  "action_required": "VERIFY_IDENTITY",
+  "urgency": "MEDIUM",
+  "rubric_reason": "5071C -> VERIFY_IDENTITY / MEDIUM per rubric; no payment requested -> 0.00; deadline stated explicitly as June 23, 2026"
+ },
+ "notice17": {
+  "notice_type": "CP3219A",
+  "tax_year": "2024",
+  "notice_date": "2026-03-09",
+  "amount_due": "6878.70",
+  "response_deadline": "2026-06-07",
+  "action_required": "REQUEST_HEARING",
+  "urgency": "CRITICAL",
+  "rubric_reason": "CP3219A -> REQUEST_HEARING / CRITICAL per rubric; amount due 6878.70 is what the notice asks the taxpayer to pay; deadline stated as a 90-day window; ground truth = notice date 2026-03-09 + 90 calendar days = 2026-06-07"
+ },
+ "notice18": {
+  "notice_type": "CP90",
+  "tax_year": "2024",
+  "notice_date": "2026-04-15",
+  "amount_due": "13308.58",
+  "response_deadline": "2026-05-15",
+  "action_required": "REQUEST_HEARING",
+  "urgency": "CRITICAL",
+  "rubric_reason": "CP90 -> REQUEST_HEARING / CRITICAL per rubric; amount due 13308.58 is what the notice asks the taxpayer to pay; deadline stated explicitly as May 15, 2026"
+ },
+ "notice19": {
+  "notice_type": "CP259",
+  "tax_year": "2025",
+  "notice_date": "2026-10-09",
+  "amount_due": "0.00",
+  "response_deadline": "2026-11-08",
+  "action_required": "FILE_RETURN",
+  "urgency": "MEDIUM",
+  "rubric_reason": "CP259 -> FILE_RETURN / MEDIUM per rubric; no payment requested -> 0.00; deadline stated as a 30-day window; ground truth = notice date 2026-10-09 + 30 calendar days = 2026-11-08"
+ },
+ "notice20": {
+  "notice_type": "CP71C",
+  "tax_year": "2024",
+  "notice_date": "2026-01-25",
+  "amount_due": "5582.71",
+  "response_deadline": "NONE",
+  "action_required": "PAY",
+  "urgency": "MEDIUM",
+  "rubric_reason": "CP71C -> PAY / MEDIUM per rubric; amount due 5582.71 is what the notice asks the taxpayer to pay; notice sets no deadline for the taxpayer -> NONE"
+ },
+ "notice21": {
+  "notice_type": "CP21B",
+  "tax_year": "2025",
+  "notice_date": "2026-04-15",
+  "amount_due": "0.00",
+  "response_deadline": "NONE",
+  "action_required": "NO_ACTION",
+  "urgency": "LOW",
+  "rubric_reason": "CP21B -> NO_ACTION / LOW per rubric; no payment requested -> 0.00; notice sets no deadline for the taxpayer -> NONE"
+ },
+ "notice22": {
+  "notice_type": "CP05",
+  "tax_year": "2025",
+  "notice_date": "2026-02-21",
+  "amount_due": "0.00",
+  "response_deadline": "NONE",
+  "action_required": "NO_ACTION",
+  "urgency": "MEDIUM",
+  "rubric_reason": "CP05 -> NO_ACTION / MEDIUM per rubric; no payment requested -> 0.00; notice sets no deadline for the taxpayer -> NONE"
+ },
+ "notice23": {
+  "notice_type": "CP2000",
+  "tax_year": "2024",
+  "notice_date": "2026-03-19",
+  "amount_due": "5831.57",
+  "response_deadline": "2026-04-18",
+  "action_required": "RESPOND_WITH_DOCUMENTATION",
+  "urgency": "HIGH",
+  "rubric_reason": "CP2000 -> RESPOND_WITH_DOCUMENTATION / HIGH per rubric; amount due 5831.57 is what the notice asks the taxpayer to pay; deadline stated as a 30-day window; ground truth = notice date 2026-03-19 + 30 calendar days = 2026-04-18"
+ },
+ "notice24": {
+  "notice_type": "CP14",
+  "tax_year": "2025",
+  "notice_date": "2026-05-23",
+  "amount_due": "35104.55",
+  "response_deadline": "2026-06-13",
+  "action_required": "PAY",
+  "urgency": "HIGH",
+  "rubric_reason": "CP14 -> PAY / HIGH per rubric; amount due 35104.55 is what the notice asks the taxpayer to pay; deadline stated explicitly as June 13, 2026"
+ },
+ "notice25": {
+  "notice_type": "LT11",
+  "tax_year": "2024",
+  "notice_date": "2026-06-17",
+  "amount_due": "40023.13",
+  "response_deadline": "2026-07-17",
+  "action_required": "REQUEST_HEARING",
+  "urgency": "CRITICAL",
+  "rubric_reason": "LT11 -> REQUEST_HEARING / CRITICAL per rubric; amount due 40023.13 is what the notice asks the taxpayer to pay; deadline stated explicitly as July 17, 2026"
+ }
+}

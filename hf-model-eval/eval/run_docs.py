@@ -176,7 +176,10 @@ class Transformers(Backend):
             gen["temperature"] = self.args.temperature
         with torch.inference_mode():
             out = model.generate(**inputs, **gen)
-        new = out[:, inputs["input_ids"].shape[-1]:]  # only the generated tokens
+        if getattr(model.config, "is_encoder_decoder", False):
+            new = out  # encoder-decoder VLMs (e.g. Florence-2) return only the generated tokens
+        else:
+            new = out[:, inputs["input_ids"].shape[-1]:]  # decoder-only: drop the echoed prompt, keep generated tokens
         return proc.batch_decode(new, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
 
 
@@ -236,7 +239,7 @@ def load_items(args):
             sys.exit(f"{i}: unknown doc_type {e.get('doc_type')!r}; known: {list(FIELDS['doc_types'])}")
         items.append({"id": i, "doc_type": e["doc_type"], "png": Path(args.data_root) / "docs" / e["png"],
                       "prompt": doc_prompt(e["doc_type"])})
-    return items
+    return items, list(gt)  # selected items, and every id in the ground truth (for the completeness summary)
 
 
 def run_item(backend, item, args):
@@ -314,7 +317,7 @@ def main(argv=None):
     ap.add_argument("--dry-run", action="store_true", help="build every prompt, print the first one, call no model")
     args = ap.parse_args(argv)
 
-    items = load_items(args)
+    items, all_ids = load_items(args)
     if not items:
         sys.exit("no items to run")
     if args.dry_run:
@@ -332,7 +335,10 @@ def main(argv=None):
     todo = [it for it in items if args.overwrite or it["id"] not in out or "error" in out[it["id"]]]
     print(f"{AREA} / {args.name}: {len(items)} item(s), {len(items) - len(todo)} already done, {len(todo)} to run "
           f"-> {out_path}")
+    score_hint = f"next: python {HERE / 'score.py'} --area {AREA} --pred {out_path} --name {args.name}"
     if not todo:
+        if all(i in out and "error" not in out[i] for i in all_ids):
+            print(f"all {len(all_ids)} items are done; {score_hint}")
         return 0
 
     backend = make_backend(args)
@@ -364,7 +370,7 @@ def main(argv=None):
         write_json(out_path, out)
         if rec["latency_sec"] is not None:
             latencies.append(rec["latency_sec"])
-        lat = f"{rec['latency_sec']:.1f}s" if rec["latency_sec"] is not None else "n/a"
+        lat = f"{rec['latency_sec']:.2f}s" if rec["latency_sec"] is not None else "n/a"
         w, h = rec["image_size_sent"]
         print(f"{tag} json_valid={rec['json_valid']} keys={rec['keys_present']}/{rec['keys_expected']} "
               f"retry={rec['retry']} latency={lat} img={w}x{h}", flush=True)
@@ -372,22 +378,25 @@ def main(argv=None):
             print(f"    invalid JSON; answer {backend.dir / (it['id'] + '.retry.response.txt')} and re-run with "
                   f"--overwrite --ids {it['id']}", flush=True)
 
-    done = [r for r in out.values() if "error" not in r]
+    if args.runner == "manual":
+        pending = len(backend.pending)  # first answers AND retry answers that are still missing
+    # completeness is measured against the whole ground truth, not just the --ids subset of this run
+    done = [out[i] for i in all_ids if i in out and "error" not in out[i]]
     valid = sum(1 for r in done if r.get("json_valid"))
     retried = sum(1 for r in done if r.get("retry"))
-    summary = {"items_total": len(items), "items_done": len(done), "json_valid": valid, "retried": retried,
-               "errors_this_run": errors, "pending_manual": pending,
+    summary = {"items_total": len(all_ids), "items_selected": len(items), "items_run": len(todo), "items_done": len(done),
+               "json_valid": valid, "retried": retried, "errors_this_run": errors, "pending_manual": pending,
                "mean_latency_sec": round(sum(latencies) / len(latencies), 3) if latencies else None,
                "finished_at": dt.datetime.now(dt.timezone.utc).isoformat()}
     meta["summary"] = summary
     write_json(meta_path, meta)
-    print(f"\nsummary: {len(done)}/{len(items)} items in {out_path}; json_valid {valid}/{len(done)}; retried {retried}; "
+    print(f"\nsummary: {len(done)}/{len(all_ids)} items in {out_path}; json_valid {valid}/{len(done)}; retried {retried}; "
           f"errors this run {errors}; pending manual {pending}"
           + (f"; mean latency {summary['mean_latency_sec']}s" if latencies else ""))
     if pending:
         print(f"answer the pending prompts in {backend.dir} and re-run the same command (done ids are skipped)")
-    if len(done) == len(items):
-        print(f"next: python {HERE / 'score.py'} --area {AREA} --pred {out_path} --name {args.name}")
+    if len(done) == len(all_ids):
+        print(score_hint)
     return 1 if errors else 0
 
 
